@@ -1,9 +1,20 @@
-import { MoreVert, SettingsOutlined } from '@mui/icons-material'
-import { Card, Container, Grid2, Typography   } from '@mui/material'
-
+import { Cached, MoreVert, SettingsOutlined } from '@mui/icons-material'
+import { Card, Container, Grid2, Typography } from '@mui/material'
 import QRCode from 'react-qr-code'
+import { Socket } from "socket.io-client";
+import { useEffect, useState } from "react";
 
-const Connect = () => {
+const Connect = ({io}: {io: Socket | undefined}) => {
+	const [qr, setQr] = useState("");
+
+	useEffect(() => {
+		io?.on("session-qrcode", (data) => {
+			setQr(data);
+		});
+
+		io?.emit("receive-qrcode");
+	}, [io]);
+
 	return (
 		<Container>
 			<Card>
@@ -17,7 +28,9 @@ const Connect = () => {
 						<Typography variant="h6">4. Aponte seu celular para esta tela para escanear o QR code.</Typography>
 					</Grid2>
 					<Grid2 size={3}>
-						<QRCode value="hey" />
+						{
+							qr ? <QRCode value={qr} /> : <Cached sx={{ fontSize: 200 }} />
+						}
 					</Grid2>
 				</Grid2>
 			</Card>
